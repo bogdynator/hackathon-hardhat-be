@@ -1,0 +1,94 @@
+Understanding the Smart Contract
+
+    The smart contract is called BasicContract2 and it inherits from the OpenZeppelin Ownable contract. This means that the contract has a single owner who can execute certain functions that are restricted to the owner.
+
+    The contract has two public state variables: a and b. The variable b is initialized to 5. The function incrementA() increments the value of a by 1, and decrementA() decrements the value of a by 1.
+
+    There are five functions with different requirements. The function req1() requires that the input parameter a is greater than 10, otherwise it will revert with the message "reverted by me". The function req2() can only be executed by the owner of the contract and it increments the value of the input parameter a by 1. The function req3() increments the value of the input parameter a by 1, but it doesn't have any requirements. The function req4() can only be executed by the owner of the contract and it takes a boolean parameter. The function req5() can only be executed by the owner of the contract and it takes a string parameter.
+
+    Now that we have a good understanding of the smart contract, let's start writing some unit tests.
+
+    Writing Unit Tests
+
+    We'll be using mocha and chai Java Script testing frameworks to write our unit tests. If you're not familiar with these frameworks, you can check out their documentation to learn more.
+
+    First, we need to import the smart contract into our test file. We'll also import some helper functions from the OpenZeppelin Test Helpers library that we'll use later.
+
+    const BasicContract2 = artifacts.require("BasicContract2");
+    const { expectRevert } = require('@openzeppelin/test-helpers');
+
+    describe("BasicContract2", () => {
+      let basicContract2;
+
+      beforeEach(async () => {
+        basicContract2 = await BasicContract2.new();
+      });
+
+      it("should initialize b to 5", async () => {
+        const b = await basicContract2.b();
+        assert.equal(b, 5);
+      });
+
+      it("should increment a by 1", async () => {
+        await basicContract2.incrementA();
+        const a = await basicContract2.a();
+        assert.equal(a, 1);
+      });
+
+      it("should decrement a by 1", async () => {
+        await basicContract2.decrementA();
+        const a = await basicContract2.a();
+        assert.equal(a, -1);
+      });
+
+      it("should revert when a is less than or equal to 10", async () => {
+        await expectRevert(
+          basicContract2.req1(5),
+          "reverted by me"
+        );
+      });
+
+      it("should increment a by 1 when executed by owner", async () => {
+        await basicContract2.req2(0);
+        const a = await basicContract2.a();
+        assert.equal(a, 1);
+      });
+
+      it("should increment a by 1 without requirements", async () => {
+        await basicContract2.req3(0);
+        const a = await basicContract2.a();
+        assert.equal(a, 1);
+      });
+
+      it("should execute when parameter is boolean and executed by owner", async () => {
+        await basicContract2.req4(true);
+      });
+
+      it("should execute when parameter is string and executed by owner", async () => {
+        await basicContract2.req5("test");
+      });
+    });
+
+    Let's go through each test case and see what it's doing.
+
+    The first test case checks that the variable b is initialized to 5.
+
+    The second test case checks that the function incrementA() increments the value of a by 1.
+
+    The third test case checks that the function decrementA() decrements the value of a by 1.
+
+    The fourth test case checks that the function req1() reverts when the input parameter a is less than or equal to 10.
+
+    The fifth test case checks that the function req2() increments the value of the input parameter a by 1 when executed by the owner.
+
+    The sixth test case checks that the function req3() increments the value of the input parameter a by 1 without any requirements.
+
+    The seventh test case checks that the function req4() executes when the input parameter is a boolean and executed by the owner.
+
+    The eighth test case checks that the function req5() executes when the input parameter is a string and executed by the owner.
+
+    These tests cover all the different functions and requirements of the smart contract, ensuring that it behaves as expected.
+
+    Conclusion
+
+    Writing great unit tests is essential for ensuring the correctness and reliability of your smart contracts. By using mocha and chai Java Script testing frameworks, we can easily write comprehensive unit tests that cover all the different functions and requirements of our smart contracts.

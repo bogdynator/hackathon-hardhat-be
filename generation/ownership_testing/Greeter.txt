@@ -1,0 +1,47 @@
+
+
+const { expect } = require('chai');
+const { ethers } = require('hardhat');
+
+describe('BasicContract2', () => {
+  let basicContract2;
+  let owner;
+  let addr1;
+
+  beforeEach(async () => {
+    const BasicContract2 = await ethers.getContractFactory('BasicContract2');
+    [owner, addr1] = await ethers.getSigners();
+    basicContract2 = await BasicContract2.deploy();
+    await basicContract2.deployed();
+  });
+
+  describe('req2', () => {
+    it('should revert if caller is not the owner', async () => {
+      await expect(basicContract2.connect(addr1).req2(5)).to.be.revertedWith('Ownable: caller is not the owner');
+    });
+
+    it('should not revert if caller is the owner', async () => {
+      await expect(basicContract2.connect(owner).req2(5)).to.not.be.reverted;
+    });
+  });
+
+  describe('req4', () => {
+    it('should revert if caller is not the owner', async () => {
+      await expect(basicContract2.connect(addr1).req4(true)).to.be.revertedWith('Ownable: caller is not the owner');
+    });
+
+    it('should not revert if caller is the owner', async () => {
+      await expect(basicContract2.connect(owner).req4(true)).to.not.be.reverted;
+    });
+  });
+
+  describe('req5', () => {
+    it('should revert if caller is not the owner', async () => {
+      await expect(basicContract2.connect(addr1).req5('hello')).to.be.revertedWith('Ownable: caller is not the owner');
+    });
+
+    it('should not revert if caller is the owner', async () => {
+      await expect(basicContract2.connect(owner).req5('hello')).to.not.be.reverted;
+    });
+  });
+});

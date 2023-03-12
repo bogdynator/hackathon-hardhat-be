@@ -1,0 +1,89 @@
+
+
+describe("BasicContract2", function () {
+  let contract;
+  let owner;
+
+  beforeEach(async function () {
+    const BasicContract2 = await ethers.getContractFactory("BasicContract2");
+    contract = await BasicContract2.deploy();
+    await contract.deployed();
+    [owner] = await ethers.getSigners();
+  });
+
+  describe("incrementA", function () {
+    it("should increment the value of a", async function () {
+      await contract.incrementA();
+      const result = await contract.a();
+      assert.equal(result, 1);
+    });
+  });
+
+  describe("decrementA", function () {
+    it("should decrement the value of a", async function () {
+      await contract.decrementA();
+      const result = await contract.a();
+      assert.equal(result, -1);
+    });
+  });
+
+  describe("req1", function () {
+    it("should revert if a is less than or equal to 10", async function () {
+      await assert.revert(contract.req1(10), "reverted by me");
+      await assert.revert(contract.req1(5), "reverted by me");
+    });
+
+    it("should not revert if a is greater than 10", async function () {
+      await contract.req1(11);
+      const result = await contract.a();
+      assert.equal(result, 0);
+    });
+  });
+
+  describe("req2", function () {
+    it("should increment a if called by the owner", async function () {
+      await contract.connect(owner).req2(5);
+      const result = await contract.a();
+      assert.equal(result, 1);
+    });
+
+    it("should revert if called by a non-owner", async function () {
+      const [, nonOwner] = await ethers.getSigners();
+      await assert.revert(contract.connect(nonOwner).req2(5), "Ownable: caller is not the owner");
+    });
+  });
+
+  describe("req3", function () {
+    it("should not modify a", async function () {
+      await contract.req3(5);
+      const result = await contract.a();
+      assert.equal(result, 0);
+    });
+  });
+
+  describe("req4", function () {
+    it("should revert if called by a non-owner", async function () {
+      const [, nonOwner] = await ethers.getSigners();
+      await assert.revert(contract.connect(nonOwner).req4(true), "Ownable: caller is not the owner");
+    });
+
+    it("should not revert if called by the owner", async function () {
+      await contract.connect(owner).req4(true);
+      const result = await contract.b();
+      assert.equal(result, 5);
+    });
+  });
+
+  describe("req5", function () {
+    it("should revert if called by a non-owner", async function () {
+      const [, nonOwner] = await ethers.getSigners();
+      await assert.revert(contract.connect(nonOwner).req5("test"), "Ownable: caller is not the owner");
+    });
+
+    it("should not revert if called by the owner", async function () {
+      await contract.connect(owner).req5("test");
+      const result = await contract.b();
+      assert.equal(result, 5);
+    });
+  });
+});
